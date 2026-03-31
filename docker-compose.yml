@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  face-recognition:
+    build: .
+    container_name: face-recognition-service
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./models:/app/models
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - jajr-network
+
+  nginx:
+    image: nginx:latest
+    container_name: face-recognition-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - face-recognition
+    restart: unless-stopped
+    networks:
+      - jajr-network
+
+networks:
+  jajr-network:
+    driver: bridge
