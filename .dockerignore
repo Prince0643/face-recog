@@ -1,0 +1,25 @@
+# Python virtual environment
+venv/
+env/
+.venv/
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Models (if needed)
+# models/
