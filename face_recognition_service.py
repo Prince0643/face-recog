@@ -76,14 +76,33 @@ class FaceRecognitionService:
         """
         # Convert RGB to grayscale for detection
         gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        
-        # Detect faces
+
+        # Improve contrast for more reliable detection under poor lighting
+        gray = cv2.equalizeHist(gray)
+
+        h, w = gray.shape[:2]
+
+        # Dynamic min face size based on image resolution
+        # (front camera captures can vary widely in size and may be downscaled)
+        min_side = max(60, int(min(h, w) * 0.18))
+        min_size = (min_side, min_side)
+
+        # Detect faces (primary pass)
         faces = face_cascade.detectMultiScale(
             gray,
-            scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(100, 100)
+            scaleFactor=1.08,
+            minNeighbors=4,
+            minSize=min_size
         )
+
+        # Fallback pass for harder cases
+        if len(faces) == 0:
+            faces = face_cascade.detectMultiScale(
+                gray,
+                scaleFactor=1.05,
+                minNeighbors=3,
+                minSize=(60, 60)
+            )
         
         if len(faces) == 0:
             return None
